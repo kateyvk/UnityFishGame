@@ -714,8 +714,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 543450652777667669}
-  - component: {fileID: 5866666020952442415}
-  - component: {fileID: 5866666020952442416}
+  - component: {fileID: 5866666020952442417}
+  - component: {fileID: 5866666020952442418}
   m_Layer: 0
   m_Name: fishermanCharcter
   m_TagString: Untagged
@@ -1824,7 +1824,21 @@ Transform:
   - {fileID: 7410462538172400967}
   m_Father: {fileID: 2420202491040807754}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &5866666020952442415
+--- !u!114 &5866666020952442417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132149044741871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a1f023c79a312d4eb27bfcc86e909ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveInput: {x: 0, y: 0}
+  moveSpeed: 2
+--- !u!95 &5866666020952442418
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -1834,10 +1848,10 @@ Animator:
   m_GameObject: {fileID: 919132149044741871}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: bb6d2f14174786343a31fc9dea400c61, type: 3}
-  m_Controller: {fileID: 0}
-  m_CullingMode: 1
+  m_Controller: {fileID: 9100000, guid: 634caec3d7326614f81e4485e5bb2cec, type: 2}
+  m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 1
+  m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -1846,31 +1860,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!143 &5866666020952442416
-CharacterController:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132149044741871}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.2
-  m_SkinWidth: 0.08
-  m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!4 &5901452234843049686
 Transform:
   m_ObjectHideFlags: 0

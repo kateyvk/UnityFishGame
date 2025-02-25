@@ -1,5 +1,5 @@
 {
-    "name": "PlayerAction",
+    "name": "PlayerActions",
     "maps": [
         {
             "name": "PlayerControls",
@@ -7,7 +7,7 @@
             "actions": [
                 {
                     "name": "Move",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "19008bdf-d82c-4e2d-bd4f-269a6984e299",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -16,7 +16,7 @@
                 },
                 {
                     "name": "Look",
-                    "type": "Value",
+                    "type": "PassThrough",
                     "id": "ccc22d5b-469f-4403-a58b-6852646aefe6",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -88,17 +88,6 @@
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "d740b6a7-27ee-4283-865e-e729edec12ba",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 },
                 {
                     "name": "2D Vector",

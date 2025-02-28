@@ -5,13 +5,14 @@ public class Player : MonoBehaviour
 {
     private PlayerActions actions;
     [SerializeField]
-    #region 
+   
     private Animator animator;
+    [SerializeField]
     private CharacterController characterController;
-    #endregion
+    
     private void Stand(){
         animator.SetBool("Stand", true);
-        animator.SetBool("Fishing", false);
+        //animator.SetBool("Fishing", false);
     }
 
     

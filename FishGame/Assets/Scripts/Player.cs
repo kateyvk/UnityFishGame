@@ -36,6 +36,10 @@ public class Player : MonoBehaviour
     {
         Vector3 movement = transform.right * moveInput.x + transform.forward *moveInput.y;
         characterController.Move(movement*moveSpeed * Time.deltaTime);
+
+        //if (moveInput.x!=0||moveInput.y!=0){
+        //    animator.TryPlayAnimation("Walk");
+        //}
     }
 
 

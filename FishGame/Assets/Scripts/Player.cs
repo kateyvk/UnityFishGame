@@ -21,8 +21,19 @@ public class Player : MonoBehaviour
     private float moveSpeed =2.0f;
     #endregion
 
-    
-    
+    private Vector3 playerVelocity;
+    private float gravityValue = -9.81F;
+    [SerializeField]
+    private float jumpHeight = 0.2F;    
+    private void Gravity()
+    {
+        playerVelocity.y += gravityValue *Time.deltaTime;
+        characterController.Move(playerVelocity * Time.deltaTime);
+        if(characterController.isGrounded && playerVelocity.y <0)
+        {
+            playerVelocity.y =0;
+        }
+    }
     private void Move()
     {
         Vector3 movement = transform.right * moveInput.x + transform.forward *moveInput.y;
@@ -40,6 +51,7 @@ public class Player : MonoBehaviour
     private void Jump()
     {
         anyStateAnimator.TryPlayAnimation("Jump");
+        playerVelocity.y += Mathf.Sqrt(jumpHeight *-3.0f*gravityValue);
     }
    
 
@@ -74,5 +86,6 @@ public class Player : MonoBehaviour
     void Update()
     {
         Move();
+        Gravity();
     }
 }

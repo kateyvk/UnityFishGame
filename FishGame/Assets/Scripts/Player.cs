@@ -6,19 +6,18 @@ public class Player : MonoBehaviour
     private PlayerActions actions;
     [SerializeField]
    
-    private Animator animator;
+    //private Animator animator;
+    private AnyStateAnimator anyStateAnimator;
 
     [SerializeField]
     private CharacterController characterController;
     
-    [SerializeField]
+  
     #region INPUT
-
     private Vector2 moveInput;
     #endregion
-    [SerializeField]
+   
     #region VALUE
-
     private float moveSpeed =2.0f;
     #endregion
 
@@ -30,16 +29,19 @@ public class Player : MonoBehaviour
         characterController.Move(movement*moveSpeed * Time.deltaTime);
 
         if (moveInput.x!=0||moveInput.y!=0){
-            animator.TryPlayAnimation("Walk");
-        }else{
-            animator.TryPlayAnimation("Stand");
+            anyStateAnimator.TryPlayAnimation("Walk");
+        }
+        else
+        {
+            anyStateAnimator.TryPlayAnimation("Stand");
         }
     }
 
     private void Jump()
     {
-        animator.TryPlayAnimation("Jump");
+        anyStateAnimator.TryPlayAnimation("Jump");
     }
+   
 
 
     private void OnEnable()
@@ -65,7 +67,7 @@ public class Player : MonoBehaviour
         AnyStateAnimation stand = new AnyStateAnimation("Stand","Jump");
         AnyStateAnimation walk = new AnyStateAnimation("Walk","Jump");
         AnyStateAnimation jump = new AnyStateAnimation("Jump");
-        animator.AddAnimation(stand, walk, jump);
+        anyStateAnimator.AddAnimation(stand, walk, jump);
     }
 
     // Update is called once per frame

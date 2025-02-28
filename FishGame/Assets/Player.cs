@@ -5,10 +5,17 @@ public class Player : MonoBehaviour
 {
     private PlayerActions actions;
     [SerializeField]
-
+    #region 
     private Animator animator;
-
     private CharacterController characterController;
+    #endregion
+    private void Stand(){
+        animator.SetBool("Stand", true);
+        animator.SetBool("Fishing", false);
+    }
+
+    
+
     [SerializeField]
     #region INPUT
 
@@ -20,9 +27,9 @@ public class Player : MonoBehaviour
     private float moveSpeed =2.0f;
     #endregion
 
-    private void Jump(){
+    //private void Jump(){
 
-    }
+    //}
     
     private void Move()
     {
@@ -40,17 +47,17 @@ public class Player : MonoBehaviour
         actions.Disable();
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
     void Awake()
     {
-        actions = new PlayerAction();
-        actions.PlayerControls.Move.performed += cxt => Move();
-        ActionsHelper.PlayerControls.Move.performed += ContextMenu => moveInput = ContextMenu.ReadValue<Vector2>();
+        actions = new PlayerActions();
+        //actions.Controls.Jump.performed += cxt=> Jump();
+        actions.Controls.Move.performed += cxt=> moveInput = cxt.ReadValue<Vector2>();
+    }
+
+    void Start()
+    {
+        
     }
 
     // Update is called once per frame

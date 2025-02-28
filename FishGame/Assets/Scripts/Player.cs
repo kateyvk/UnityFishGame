@@ -7,16 +7,10 @@ public class Player : MonoBehaviour
     [SerializeField]
    
     private Animator animator;
+
     [SerializeField]
     private CharacterController characterController;
     
-    private void Stand(){
-        animator.SetBool("Stand", true);
-        //animator.SetBool("Fishing", false);
-    }
-
-    
-
     [SerializeField]
     #region INPUT
 
@@ -28,18 +22,23 @@ public class Player : MonoBehaviour
     private float moveSpeed =2.0f;
     #endregion
 
-    //private void Jump(){
-
-    //}
+    
     
     private void Move()
     {
         Vector3 movement = transform.right * moveInput.x + transform.forward *moveInput.y;
         characterController.Move(movement*moveSpeed * Time.deltaTime);
 
-        //if (moveInput.x!=0||moveInput.y!=0){
-        //    animator.TryPlayAnimation("Walk");
-        //}
+        if (moveInput.x!=0||moveInput.y!=0){
+            animator.TryPlayAnimation("Walk");
+        }else{
+            animator.TryPlayAnimation("Stand");
+        }
+    }
+
+    private void Jump()
+    {
+        animator.TryPlayAnimation("Jump");
     }
 
 
@@ -56,13 +55,17 @@ public class Player : MonoBehaviour
     void Awake()
     {
         actions = new PlayerActions();
-        //actions.Controls.Jump.performed += cxt=> Jump();
-        actions.Controls.Move.performed += cxt=> moveInput = cxt.ReadValue<Vector2>();
+
+        actions.Controls.Jump.performed += cxt => Jump();
+        actions.Controls.Move.performed += cxt => moveInput = cxt.ReadValue<Vector2>();
     }
 
     void Start()
     {
-        
+        AnyStateAnimation stand = new AnyStateAnimation("Stand","Jump");
+        AnyStateAnimation walk = new AnyStateAnimation("Walk","Jump");
+        AnyStateAnimation jump = new AnyStateAnimation("Jump");
+        animator.AddAnimation(stand, walk, jump);
     }
 
     // Update is called once per frame

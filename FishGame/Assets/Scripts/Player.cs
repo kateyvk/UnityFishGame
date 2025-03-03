@@ -78,7 +78,7 @@ public class Player : MonoBehaviour
     {
         AnyStateAnimation stand = new AnyStateAnimation("Stand","Jump");
         AnyStateAnimation walk = new AnyStateAnimation("Walk","Jump");
-        AnyStateAnimation jump = new AnyStateAnimation("Jump");
+        AnyStateAnimation jump = new AnyStateAnimation("Jump","Walk");
         anyStateAnimator.AddAnimation(stand, walk, jump);
     }
 

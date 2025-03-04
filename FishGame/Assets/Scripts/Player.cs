@@ -5,8 +5,6 @@ public class Player : MonoBehaviour
 {
     private PlayerActions actions;
     [SerializeField]
-   
-    //private Animator animator;
     private AnyStateAnimator anyStateAnimator;
 
     [SerializeField]
@@ -31,6 +29,7 @@ public class Player : MonoBehaviour
     {
         playerVelocity.y += gravityValue *Time.deltaTime;
         characterController.Move(playerVelocity * Time.deltaTime);
+
         if(characterController.isGrounded && playerVelocity.y <0)
         {
             playerVelocity.y =0;
@@ -52,8 +51,11 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
+        //Any state animator plays the StandingJump animation
         anyStateAnimator.TryPlayAnimation("Jump");
+        //Applying physics 
         playerVelocity.y += Mathf.Sqrt(jumpHeight *-3.0f*gravityValue);
+        
     }
 
    

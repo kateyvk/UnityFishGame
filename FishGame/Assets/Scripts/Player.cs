@@ -78,7 +78,7 @@ public class Player : MonoBehaviour
     {
         AnyStateAnimation stand = new AnyStateAnimation("Stand","Jump");
         AnyStateAnimation walk = new AnyStateAnimation("Walk","Jump");
-        AnyStateAnimation jump = new AnyStateAnimation("Jump","Walk");
+        AnyStateAnimation jump = new AnyStateAnimation("Jump","Walk","Stand");
         anyStateAnimator.AddAnimation(stand, walk, jump);
     }
 
@@ -87,5 +87,6 @@ public class Player : MonoBehaviour
     {
         Move();
         Gravity();
+        
     }
 }

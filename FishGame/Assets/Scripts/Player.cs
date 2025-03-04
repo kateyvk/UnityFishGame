@@ -25,6 +25,8 @@ public class Player : MonoBehaviour
     private float gravityValue = -9.81F;
     [SerializeField]
     private float jumpHeight = 0.2F;    
+
+
     private void Gravity()
     {
         playerVelocity.y += gravityValue *Time.deltaTime;
@@ -53,6 +55,8 @@ public class Player : MonoBehaviour
         anyStateAnimator.TryPlayAnimation("Jump");
         playerVelocity.y += Mathf.Sqrt(jumpHeight *-3.0f*gravityValue);
     }
+
+   
    
 
 
@@ -78,7 +82,7 @@ public class Player : MonoBehaviour
     {
         AnyStateAnimation stand = new AnyStateAnimation("Stand","Jump");
         AnyStateAnimation walk = new AnyStateAnimation("Walk","Jump");
-        AnyStateAnimation jump = new AnyStateAnimation("Jump","Walk","Stand");
+        AnyStateAnimation jump = new AnyStateAnimation("Jump");
         anyStateAnimator.AddAnimation(stand, walk, jump);
     }
 

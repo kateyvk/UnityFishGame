@@ -1,5 +1,6 @@
 using NUnit.Framework.Internal;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
@@ -13,16 +14,28 @@ public class Player : MonoBehaviour
   
     #region INPUT
     private Vector2 moveInput;
+    private float horizontalMouseInput;
     #endregion
-   
+
+   [SerializeField]
     #region VALUE
     private float moveSpeed =2.0f;
+    [SerializeField]
+    private float rotationSpeed = 0.01f;
     #endregion
 
     private Vector3 playerVelocity;
     private float gravityValue = -9.81F;
     [SerializeField]
     private float jumpHeight = 0.2F;    
+
+    private void Rotate(){
+        if(!Mouse.current.rightButton.isPressed){
+            float mouseX = horizontalMouseInput *rotationSpeed*Time.deltaTime;
+            transform.Rotate(Vector3.up*mouseX);
+
+        }
+    }
 
 
     private void Gravity()
@@ -78,6 +91,7 @@ public class Player : MonoBehaviour
 
         actions.Controls.Jump.performed += cxt => Jump();
         actions.Controls.Move.performed += cxt => moveInput = cxt.ReadValue<Vector2>();
+        actions.Controls.MouseMovement.performed += cxt => horizontalMouseInput = cxt.ReadValue<float>();
     }
 
     void Start()
@@ -93,6 +107,7 @@ public class Player : MonoBehaviour
     {
         Move();
         Gravity();
+        Rotate();
         
     }
 }

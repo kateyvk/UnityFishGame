@@ -2590,6 +2590,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anyStateAnimator: {fileID: 5866666020952442420}
   characterController: {fileID: 5866666020952442419}
+  moveSpeed: 2
+  rotationSpeed: 0.1
   jumpHeight: 0.5
 --- !u!95 &5866666020952442418
 Animator:

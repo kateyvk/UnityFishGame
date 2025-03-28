@@ -1136,8 +1136,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 575bdd910d294f94fa776ea51085cc95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lookAtTarget: {fileID: 543450652777667669}
-  followTarget: {fileID: 1445491871}
+  rotationSpeed: 150
+  target: {fileID: 543450652777667669}
+  smoothFactor: 0
 --- !u!1 &2126357879
 GameObject:
   m_ObjectHideFlags: 0

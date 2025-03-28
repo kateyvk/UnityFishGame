@@ -1,7 +1,6 @@
-using System.Numerics;
 using UnityEngine;
 //using UnityEngine.UIElements;
-//using System.Collections;
+using System.Collections;
 //using System.Collections.Generic;
 
 public class CameraFollow : MonoBehaviour
@@ -27,10 +26,10 @@ public class CameraFollow : MonoBehaviour
     }
     private void Rotate(float rotationAmount,float speed)
     {
-        System.Numerics.Quaternion camTargetAngle = Quaternion.AngleAxis(rotationAmount *speed*Time.deltaTime,Vector3.up);
+        Quaternion camTargetAngle = Quaternion.AngleAxis(rotationAmount *speed*Time.deltaTime,Vector3.up);
         offset = camTargetAngle * offset;
         Vector3 newPos = target.position + offset;
-        transform.position = System.Numerics.Vector3.Slerp(transform.position, newPos, smoothFactor);
+        transform.position = Vector3.Slerp(transform.position, newPos, smoothFactor);
     }
     private void OnEnable()
     {

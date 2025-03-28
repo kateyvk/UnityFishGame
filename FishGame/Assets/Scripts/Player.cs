@@ -19,9 +19,9 @@ public class Player : MonoBehaviour
 
    [SerializeField]
     #region VALUE
-    private float moveSpeed =2.0f;
+    private float moveSpeed =2.0F;
     [SerializeField]
-    private float rotationSpeed = 80.0f;
+    private float rotationSpeed = 80.0F;
     #endregion
 
     private Vector3 playerVelocity;
@@ -30,7 +30,8 @@ public class Player : MonoBehaviour
     private float jumpHeight = 0.2F;    
 
     private void Rotate(){
-        if(!Mouse.current.rightButton.isPressed){
+        if(!Mouse.current.rightButton.isPressed)
+        {
             float mouseX = horizontalMouseInput *rotationSpeed*Time.deltaTime;
             transform.Rotate(Vector3.up*mouseX);
 

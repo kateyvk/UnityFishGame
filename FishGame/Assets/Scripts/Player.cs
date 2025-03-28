@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
     #region VALUE
     private float moveSpeed =2.0f;
     [SerializeField]
-    private float rotationSpeed = 0.01f;
+    private float rotationSpeed = 80.0f;
     #endregion
 
     private Vector3 playerVelocity;

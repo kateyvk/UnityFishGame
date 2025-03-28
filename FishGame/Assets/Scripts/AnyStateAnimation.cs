@@ -12,3 +12,4 @@ public class AnyStateAnimation
         this.HigherPrio = higherPrio;
     }
 }
+

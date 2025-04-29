@@ -42,7 +42,7 @@ public class CameraFollow : MonoBehaviour
     void Awake()
     {
         actions = new PlayerActions();
-        actions.Controls.MouseMovement.performed +=cxt => mouseX = cxt.ReadValue<float>();
+        actions.ControlsMap.MouseMovement.performed +=cxt => mouseX = cxt.ReadValue<float>();
         offset = transform.position - target.transform.position;
     }
 }

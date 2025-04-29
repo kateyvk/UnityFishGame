@@ -90,9 +90,9 @@ public class Player : MonoBehaviour
     {
         actions = new PlayerActions();
 
-        actions.Controls.Jump.performed += cxt => Jump();
-        actions.Controls.Move.performed += cxt => moveInput = cxt.ReadValue<Vector2>();
-        actions.Controls.MouseMovement.performed += cxt => horizontalMouseInput = cxt.ReadValue<float>();
+        actions.ControlsMap.Jump.performed += cxt => Jump();
+        actions.ControlsMap.Move.performed += cxt => moveInput = cxt.ReadValue<Vector2>();
+        actions.ControlsMap.MouseMovement.performed += cxt => horizontalMouseInput = cxt.ReadValue<float>();
     }
 
     void Start()

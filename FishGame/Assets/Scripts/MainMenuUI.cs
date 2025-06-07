@@ -12,7 +12,7 @@ public class MainMenuUI : MonoBehaviour
     public void StartGame()
     {
         // Load the scene named "GameScene" (change this to the name of your actual gameplay scene)
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("MainScene");
     }
 
     public void ShowOptions()

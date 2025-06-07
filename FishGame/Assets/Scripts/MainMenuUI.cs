@@ -1,34 +1,41 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;  // For scene loading
+using UnityEngine.SceneManagement;
 
 public class MainMenuUI : MonoBehaviour
 {
     public GameObject mainMenuPanel;
     public GameObject optionsPanel;
     public GameObject aboutPanel;
-    
-    
+    public AudioSource clickSound;
+
+    public void PlayClickSound()
+    {
+        clickSound?.Play();
+    }
 
     public void StartGame()
     {
-        // Load the scene named "GameScene" (change this to the name of your actual gameplay scene)
+        PlayClickSound();
         SceneManager.LoadScene("MainScene");
     }
 
     public void ShowOptions()
     {
+        PlayClickSound();
         mainMenuPanel.SetActive(false);
         optionsPanel.SetActive(true);
     }
 
     public void ShowAbout()
     {
+        PlayClickSound();
         mainMenuPanel.SetActive(false);
         aboutPanel.SetActive(true);
     }
 
     public void BackToMenu()
     {
+        PlayClickSound();
         optionsPanel.SetActive(false);
         aboutPanel.SetActive(false);
         mainMenuPanel.SetActive(true);
@@ -36,8 +43,8 @@ public class MainMenuUI : MonoBehaviour
 
     public void QuitGame()
     {
-        // Close the game (only works in builds)
+        PlayClickSound();
         Application.Quit();
-        Debug.Log("Quit Game"); // This is just for logging in the editor
+        Debug.Log("Quit Game");
     }
 }

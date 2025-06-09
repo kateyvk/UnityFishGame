@@ -10,8 +10,10 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private CharacterController characterController;
-    
-  
+
+    private bool isCasting;
+    private bool hasJustCast;
+
     #region INPUT
     private Vector2 moveInput;
     private float horizontalMouseInput;
@@ -41,26 +43,34 @@ public class Player : MonoBehaviour
 
     private void Gravity()
     {
-        playerVelocity.y += gravityValue *Time.deltaTime;
-        characterController.Move(playerVelocity * Time.deltaTime);
-
         if(characterController.isGrounded && playerVelocity.y <0)
         {
             playerVelocity.y =0;
         }
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        characterController.Move(playerVelocity * Time.deltaTime);
     }
     private void Move()
     {
-        Vector3 movement = transform.right * moveInput.x + transform.forward *moveInput.y;
-        characterController.Move(movement*moveSpeed * Time.deltaTime);
+        if (isCasting) return;
 
-        if (moveInput.x!=0||moveInput.y!=0){
+        Vector3 movement = transform.right * moveInput.x + transform.forward * moveInput.y;
+        characterController.Move(movement * moveSpeed * Time.deltaTime);
+
+        if (moveInput.x != 0 || moveInput.y != 0)
+        {
             anyStateAnimator.TryPlayAnimation("Walk");
+            hasJustCast = false; //reset after movement
+        }
+        else if (hasJustCast)
+        {
+            anyStateAnimator.TryPlayAnimation("CastIdle");
         }
         else
         {
             anyStateAnimator.TryPlayAnimation("Stand");
         }
+        
     }
 
     private void Jump()
@@ -72,6 +82,18 @@ public class Player : MonoBehaviour
         
     }
 
+    private void StartCasting()
+    {
+        isCasting = true;
+        hasJustCast = false; //currently running casting animation
+        anyStateAnimator.TryPlayAnimation("Casting");
+    }
+    private void StopCasting()
+    {
+        isCasting = false;
+        hasJustCast = true; //cast animation just ended
+        anyStateAnimator.TryPlayAnimation("CastIdle");
+    }
    
    
 
@@ -93,22 +115,33 @@ public class Player : MonoBehaviour
         actions.ControlsMap.Jump.performed += cxt => Jump();
         actions.ControlsMap.Move.performed += cxt => moveInput = cxt.ReadValue<Vector2>();
         actions.ControlsMap.MouseMovement.performed += cxt => horizontalMouseInput = cxt.ReadValue<float>();
+
+
+        actions.ControlsMap.Cast.started += cxt => StartCasting();
+        actions.ControlsMap.Cast.canceled += cxt => StopCasting();
     }
 
     void Start()
     {
-        AnyStateAnimation stand = new AnyStateAnimation("Stand","Jump");
-        AnyStateAnimation walk = new AnyStateAnimation("Walk","Jump");
+        AnyStateAnimation stand = new AnyStateAnimation("Stand", "Jump", "Casting", "CastIdle");
+        AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump", "Casting", "CastIdle");
         AnyStateAnimation jump = new AnyStateAnimation("Jump");
-        anyStateAnimator.AddAnimation(stand, walk, jump);
+
+        AnyStateAnimation casting = new AnyStateAnimation("Casting","Jump");
+        AnyStateAnimation castIdle = new AnyStateAnimation("CastIdle", "Jump", "Casting");
+        anyStateAnimator.AddAnimation(stand, walk, jump,casting, castIdle);
     }
 
     // Update is called once per frame
     void Update()
     {
-        Move();
+        if (!isCasting)
+        {
+            Move();
+            Rotate();
+        }
+        
         Gravity();
-        Rotate();
         
     }
 }

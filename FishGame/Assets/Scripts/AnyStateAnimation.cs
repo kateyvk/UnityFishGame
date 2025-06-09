@@ -9,7 +9,7 @@ public class AnyStateAnimation
     public string [] HigherPrio { get; set; }
     public AnyStateAnimation(string animationName, params string[] higherPrio){
         this.AnimationName = animationName;
-        this.HigherPrio = higherPrio;
+        this.HigherPrio = higherPrio ?? new string[0];
     }
 }
 

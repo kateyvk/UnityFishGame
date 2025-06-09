@@ -30,12 +30,16 @@ public class Player : MonoBehaviour
     private float gravityValue = -9.81F;
     [SerializeField]
     private float jumpHeight = 0.2F;    
+    
+    [SerializeField] private FishingManager fishingManager;
 
-    private void Rotate(){
-        if(!Mouse.current.rightButton.isPressed)
+
+    private void Rotate()
+    {
+        if (!Mouse.current.rightButton.isPressed)
         {
-            float mouseX = horizontalMouseInput *rotationSpeed*Time.deltaTime;
-            transform.Rotate(Vector3.up*mouseX);
+            float mouseX = horizontalMouseInput * rotationSpeed * Time.deltaTime;
+            transform.Rotate(Vector3.up * mouseX);
 
         }
     }
@@ -50,27 +54,29 @@ public class Player : MonoBehaviour
         playerVelocity.y += gravityValue * Time.deltaTime;
         characterController.Move(playerVelocity * Time.deltaTime);
     }
+
+    private bool canMove = true;
     private void Move()
     {
-        if (isCasting) return;
+        if (!canMove || isCasting) return;
 
         Vector3 movement = transform.right * moveInput.x + transform.forward * moveInput.y;
         characterController.Move(movement * moveSpeed * Time.deltaTime);
-
-        if (moveInput.x != 0 || moveInput.y != 0)
-        {
-            anyStateAnimator.TryPlayAnimation("Walk");
-            hasJustCast = false; //reset after movement
-        }
-        else if (hasJustCast)
-        {
-            anyStateAnimator.TryPlayAnimation("CastIdle");
-        }
-        else
-        {
-            anyStateAnimator.TryPlayAnimation("Stand");
-        }
         
+        if (moveInput.x != 0 || moveInput.y != 0)
+            {
+                anyStateAnimator.TryPlayAnimation("Walk");
+                hasJustCast = false; //reset after movement
+            }
+            else if (hasJustCast)
+            {
+                anyStateAnimator.TryPlayAnimation("CastIdle");
+            }
+            else
+            {
+                anyStateAnimator.TryPlayAnimation("Stand");
+            }
+
     }
 
     private void Jump()
@@ -94,16 +100,32 @@ public class Player : MonoBehaviour
         hasJustCast = true; //cast animation just ended
         anyStateAnimator.TryPlayAnimation("CastIdle");
     }
-   
-   
+    private void OnCast(InputAction.CallbackContext cxt)
+    {
+        if (fishingManager != null)
+        {
+            fishingManager.StartFishing();
+        }
+        else
+        {
+            Debug.LogWarning("FishingManager is null when casting was attempted.");
+        }
+    }
+
+
+    public void DisableMovement() => canMove = false;
+    public void EnableMovement() => canMove = true;
+
 
 
     private void OnEnable()
     {
         actions.Enable();
+        actions.ControlsMap.Cast.started += OnCast;
     }
     private void OnDisable()
     {
+        actions.ControlsMap.Cast.started -= OnCast;
         actions.Disable();
     }
 
@@ -119,17 +141,20 @@ public class Player : MonoBehaviour
 
         actions.ControlsMap.Cast.started += cxt => StartCasting();
         actions.ControlsMap.Cast.canceled += cxt => StopCasting();
+
+        actions.ControlsMap.Cast.started += cxt => fishingManager.StartFishing();
+
     }
 
     void Start()
     {
-        AnyStateAnimation stand = new AnyStateAnimation("Stand", "Jump", "Casting", "CastIdle");
-        AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump", "Casting", "CastIdle");
+        AnyStateAnimation stand = new AnyStateAnimation("Stand", "Jump");
+        AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump");
         AnyStateAnimation jump = new AnyStateAnimation("Jump");
-
-        AnyStateAnimation casting = new AnyStateAnimation("Casting","Jump");
-        AnyStateAnimation castIdle = new AnyStateAnimation("CastIdle", "Jump", "Casting");
-        anyStateAnimator.AddAnimation(stand, walk, jump,casting, castIdle);
+        AnyStateAnimation casting = new AnyStateAnimation("Casting");
+        AnyStateAnimation castIdle = new AnyStateAnimation("CastIdle", "Stand");
+        AnyStateAnimation reeling = new AnyStateAnimation("Reeling", "Stand", "CastIdle"); 
+        anyStateAnimator.AddAnimation(stand, walk, jump,casting, castIdle, reeling);
     }
 
     // Update is called once per frame

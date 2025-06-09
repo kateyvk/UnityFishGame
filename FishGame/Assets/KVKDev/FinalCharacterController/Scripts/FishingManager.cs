@@ -1,95 +1,119 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class FishingManager : MonoBehaviour
 {
-    public AnyStateAnimator animator;
     public Player player;
-    
+    public AnyStateAnimator animator;
+    public FishingMinigame minigame;
+
+
+    //min and max time before a fish will bite
     [SerializeField] private float minBiteTime = 2f;
     [SerializeField] private float maxBiteTime = 6f;
 
-    private bool isFishing;
-    private bool fishOnHook;
+    private Coroutine biteCoroutine; //storing the bite timer so it can be stopped as needed
+    private FishingState currentState = FishingState.Idle; //current fishing state 
 
-    private Coroutine fishingCoroutine;
+    private enum FishingState
+    {
+        Idle,
+        Casting,
+        Waiting,
+        Bite,
+        Minigame,
+        Success,
+        Fail
+    }
 
     void Update()
     {
-        if (isFishing && fishOnHook && Keyboard.current.rKey.wasPressedThisFrame)
+        // you can escape the fishing with esc
+        if (currentState != FishingState.Idle && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            CatchFish();
+            StopAllCoroutines(); //stop casting or bite timer
+            StopFishing(); //reset state to idle
+            Debug.Log("Fishing cancelled.");
         }
     }
 
     public void StartFishing()
     {
-        if (isFishing) return;
+        //if the player is in any other state you cannot call this method
+        if (currentState != FishingState.Idle) return;
 
-        isFishing = true;
-        fishOnHook = false;
-        player.DisableMovement();
+        currentState = FishingState.Casting;
+        player.DisableMovement(); //prevents the player from moving when casting
         animator.TryPlayAnimation("Casting");
 
-        // Delay transitioning to cast idle
-        StartCoroutine(TransitionToCastIdle());
+        StartCoroutine(CastingSequence());
     }
-    public void StartReeling()
-{
-    // Stop other animations except Reeling
-    animator.TryPlayAnimation("Reeling");
-    
-    // Optional: disable player movement during reeling
-    player.DisableMovement();
-}
 
-
-    private IEnumerator TransitionToCastIdle()
+    private IEnumerator CastingSequence()
     {
-        yield return new WaitForSeconds(1.0f); // Wait for casting animation to play
-        animator.TryPlayAnimation("CastIdle");
+        yield return new WaitForSeconds(1f); // wait for cast animation to finish
+        animator.TryPlayAnimation("CastIdle");// switch back to idle after the cast
+        player.StopCasting(); // stop the casting
 
-        fishingCoroutine = StartCoroutine(FishingWait());
+        currentState = FishingState.Waiting; //start the waiting for fish to bite state 
+        biteCoroutine = StartCoroutine(BiteWait()); //randomize wait time 
     }
-
-    private IEnumerator FishingWait()
+    //wait random duration before starting a bite
+    private IEnumerator BiteWait()
     {
         float waitTime = Random.Range(minBiteTime, maxBiteTime);
         yield return new WaitForSeconds(waitTime);
-
-        if (isFishing)
+        //only proceed if player hasn't canceledd
+        if (currentState == FishingState.Waiting)
         {
-            fishOnHook = true;
-            Debug.Log("🎣 Fish on! Press 'R' to reel in!");
-            // TODO: play a bite animation or UI feedback
+            currentState = FishingState.Bite;
+            Debug.Log("Fish On!!!! Press 'R' to reel it in!");
+            StartMinigame(); //start minigame
         }
     }
 
-    public void CatchFish()
+    private void StartMinigame()
     {
-        if (!fishOnHook) return;
-
-        fishOnHook = false;
-        animator.TryPlayAnimation("Reeling");
-        Debug.Log("🐟 You caught a fish!");
-
-        StartCoroutine(EndFishingAfterDelay());
+        currentState = FishingState.Minigame;
+        minigame.StartMinigame(OnMinigameComplete);
     }
 
-    private IEnumerator EndFishingAfterDelay()
+    //
+    private void OnMinigameComplete(bool success)
     {
-        yield return new WaitForSeconds(1.0f); // Wait for reel-in animation
+        if (success)
+        {
+            Debug.Log("You caught the fish!");
+            currentState = FishingState.Success;
+        }
+        else
+        {
+            Debug.Log(" The fish got away...");
+            currentState = FishingState.Fail;
+        }
+
+        StartCoroutine(FinishFishing());
+    }
+
+
+    //play reeling animation and tehn end the fishing sequence
+    private IEnumerator FinishFishing()
+    {
+        animator.TryPlayAnimation("Reeling");
+        yield return new WaitForSeconds(1f); // Reeling animation duration
+
         StopFishing();
     }
-
+    //return to idle state after fishing sequence
     public void StopFishing()
     {
-        if (fishingCoroutine != null)
-            StopCoroutine(fishingCoroutine);
+        if (biteCoroutine != null)
+            StopCoroutine(biteCoroutine);
 
-        animator.TryPlayAnimation("Stand");
-        isFishing = false;
+        currentState = FishingState.Idle;
         player.EnableMovement();
+        animator.TryPlayAnimation("Stand");
     }
 }

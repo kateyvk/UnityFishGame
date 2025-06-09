@@ -9,10 +9,10 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/Scenes/MainScene.unity
+    path: Assets/KVKDev/Scenes/MainScene.unity
     guid: 18240a50504a1ed4b8e2ccfa749952ce
   - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
+    path: Assets/KVKDev/Scenes/MainMenu.unity
     guid: 99b74b51fdbd0a247b306a1b4c9b6086
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

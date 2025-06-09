@@ -135,6 +135,15 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Reel"",
+                    ""type"": ""Button"",
+                    ""id"": ""5c934ff2-c4c4-486d-b590-268494108fd5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -335,6 +344,17 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
                     ""action"": ""Cast"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c756cc06-de15-46da-9ca7-3c637cab18b8"",
+                    ""path"": ""<Keyboard>/#(R)"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Reel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -348,6 +368,7 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
         m_ControlsMap_Jump = m_ControlsMap.FindAction("Jump", throwIfNotFound: true);
         m_ControlsMap_MouseMovement = m_ControlsMap.FindAction("MouseMovement", throwIfNotFound: true);
         m_ControlsMap_Cast = m_ControlsMap.FindAction("Cast", throwIfNotFound: true);
+        m_ControlsMap_Reel = m_ControlsMap.FindAction("Reel", throwIfNotFound: true);
     }
 
     ~@PlayerActions()
@@ -433,6 +454,7 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_ControlsMap_Jump;
     private readonly InputAction m_ControlsMap_MouseMovement;
     private readonly InputAction m_ControlsMap_Cast;
+    private readonly InputAction m_ControlsMap_Reel;
     /// <summary>
     /// Provides access to input actions defined in input action map "ControlsMap".
     /// </summary>
@@ -464,6 +486,10 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "ControlsMap/Cast".
         /// </summary>
         public InputAction @Cast => m_Wrapper.m_ControlsMap_Cast;
+        /// <summary>
+        /// Provides access to the underlying input action "ControlsMap/Reel".
+        /// </summary>
+        public InputAction @Reel => m_Wrapper.m_ControlsMap_Reel;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -505,6 +531,9 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
             @Cast.started += instance.OnCast;
             @Cast.performed += instance.OnCast;
             @Cast.canceled += instance.OnCast;
+            @Reel.started += instance.OnReel;
+            @Reel.performed += instance.OnReel;
+            @Reel.canceled += instance.OnReel;
         }
 
         /// <summary>
@@ -531,6 +560,9 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
             @Cast.started -= instance.OnCast;
             @Cast.performed -= instance.OnCast;
             @Cast.canceled -= instance.OnCast;
+            @Reel.started -= instance.OnReel;
+            @Reel.performed -= instance.OnReel;
+            @Reel.canceled -= instance.OnReel;
         }
 
         /// <summary>
@@ -606,5 +638,12 @@ public partial class @PlayerActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCast(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Reel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnReel(InputAction.CallbackContext context);
     }
 }

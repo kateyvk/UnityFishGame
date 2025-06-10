@@ -38,7 +38,7 @@ public class Player : MonoBehaviour
     {
         AnyStateAnimation stand = new AnyStateAnimation("Stand", "Jump");
         AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump");
-        AnyStateAnimation jump = new AnyStateAnimation("Jump");
+        AnyStateAnimation jump = new AnyStateAnimation("Jump","Walk");
         AnyStateAnimation casting = new AnyStateAnimation("Casting");
         AnyStateAnimation castIdle = new AnyStateAnimation("CastIdle", "Reeling");
         AnyStateAnimation reeling = new AnyStateAnimation("Reeling");
@@ -54,15 +54,11 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        Gravity();
         if (canMove)
         {
             Move();
             Rotate();
-            Gravity();
-        }
-        else
-        {
-            Gravity();
         }
     }
 
@@ -73,10 +69,10 @@ public class Player : MonoBehaviour
     private void RegisterInputActions()
     {
         actions.ControlsMap.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        actions.ControlsMap.Move.canceled += ctx => moveInput = Vector2.zero;
+        //actions.ControlsMap.Move.canceled += ctx => moveInput = Vector2.zero;
         actions.ControlsMap.MouseMovement.performed += ctx => horizontalMouseInput = ctx.ReadValue<float>();
         actions.ControlsMap.Jump.performed += ctx => Jump();
-        actions.ControlsMap.Cast.performed += ctx => StartCasting();
+        //actions.ControlsMap.Cast.performed += ctx => StartCasting();
         actions.ControlsMap.Cast.started += ctx => OnCast(ctx);
         // Remove fishing input handling here, FishingManager should handle reeling inputs
     }

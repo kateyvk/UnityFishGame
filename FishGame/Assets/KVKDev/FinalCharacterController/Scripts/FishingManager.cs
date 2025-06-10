@@ -11,8 +11,8 @@ public class FishingManager : MonoBehaviour
 
 
     //min and max time before a fish will bite
-    [SerializeField] private float minBiteTime = 2f;
-    [SerializeField] private float maxBiteTime = 6f;
+    [SerializeField] private float minBiteTime = 10f;
+    [SerializeField] private float maxBiteTime = 30f;
 
     private Coroutine biteCoroutine; //storing the bite timer so it can be stopped as needed
     private FishingState currentState = FishingState.Idle; //current fishing state 
@@ -64,13 +64,19 @@ public class FishingManager : MonoBehaviour
     private IEnumerator BiteWait()
     {
         float waitTime = Random.Range(minBiteTime, maxBiteTime);
+        Debug.Log($"Bite will happen in {waitTime:F2} seconds");
+        minigame.ShowAlert("Waiting for a bite...");
         yield return new WaitForSeconds(waitTime);
-        //only proceed if player hasn't canceledd
+        
+        minigame.ShowAlert($"waitTime");
+        
         if (currentState == FishingState.Waiting)
         {
             currentState = FishingState.Bite;
-            Debug.Log("Fish On!!!! Press 'R' to reel it in!");
-            StartMinigame(); //start minigame
+            //Debug.Log("Fish On!!!! Press 'R' to reel it in!");
+
+
+            StartMinigame(); //start  the minigame
         }
     }
 
@@ -93,13 +99,15 @@ public class FishingManager : MonoBehaviour
     {
         if (success)
         {
-            Debug.Log("You caught the fish!");
+
             currentState = FishingState.Success;
+            minigame.ShowAlert("You caught the fish!");
         }
         else
         {
-            Debug.Log(" The fish got away...");
+
             currentState = FishingState.Fail;
+            minigame.ShowAlert(" The fish got away...");
         }
 
         StartCoroutine(FinishFishing());
@@ -110,7 +118,7 @@ public class FishingManager : MonoBehaviour
     private IEnumerator FinishFishing()
     {
         animator.TryPlayAnimation("Reeling");
-        yield return new WaitForSeconds(1f); // Reeling animation duration
+        yield return new WaitForSeconds(3f); // Reeling animation duration
 
         StopFishing();
     }

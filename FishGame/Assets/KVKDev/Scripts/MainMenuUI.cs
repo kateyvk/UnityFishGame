@@ -52,17 +52,34 @@ public class MainMenuUI : MonoBehaviour
     }
     public void ChangeVolume()
     {
-        AudioListener.volume = volumeSlider.value;
+        float volume = volumeSlider.value;
+        AudioListener.volume = volume;
+
+        // Also update persistent MusicManager volume if it exists
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.UpdateVolume(volume);
+        }
+
         SaveVol();
     }
+
     private void SaveVol()
     {
         PlayerPrefs.SetFloat("musicVolume", volumeSlider.value);
     }
     private void LoadVol()
     {
-        volumeSlider.value = PlayerPrefs.GetFloat("musicVolume");
+        float savedVol = PlayerPrefs.GetFloat("musicVolume", 1f);
+        volumeSlider.value = savedVol;
+        AudioListener.volume = savedVol;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.UpdateVolume(savedVol);
+        }
     }
+
     void Start()
     {
         if (!PlayerPrefs.HasKey("musicVolume"))

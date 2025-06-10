@@ -3,15 +3,16 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using System;
 using TMPro;
+using System.Collections;
 
 public class FishingMinigame : MonoBehaviour
 {
     private Action<bool> onComplete;
 
 
-    public float duration = 15f;            // Total time to complete the minigame
+    public float duration = 30f;            // Total time to play the minigame
     public float decayRate = 30f;          // How fast progress drops per second
-    public float fillPerPress = 10f;       // How much each R button press fills the bar
+    public float fillPerPress = 8f;       // How much each R button press fills the bar
     public Slider progressBar;             // UI slider to show progress
 
     private float timer = 0f;
@@ -61,7 +62,7 @@ public class FishingMinigame : MonoBehaviour
             ShowAlert($" Progress: {progress}/100 Keep smashing that Button!!!");
         }
 
-        // Update UI
+        // Update UI slider
         progressBar.value = progress / 100f;
 
         // Check for win
@@ -69,7 +70,7 @@ public class FishingMinigame : MonoBehaviour
         {
             CompleteMinigame(true);
         }
-        // Check for fail
+        // if time runs out before success
         else if (timer >= duration)
         {
             CompleteMinigame(false);
@@ -83,10 +84,8 @@ public class FishingMinigame : MonoBehaviour
 
         onComplete?.Invoke(success);
         ShowAlert(success ? "Congrats you reeled in a Fish!!" : " The Fish got away!! Keep trying to reel them in");
-        minigameAlerts.gameObject.SetActive(false);
-        gameTimer.gameObject.SetActive(false);
-        progressBar.gameObject.SetActive(false);
-        minigamePanel.gameObject.SetActive(false);
+        //start coroutine to hide UI elements after a couple seconds, but not before the final win/loss message
+        StartCoroutine(HideUIDelay(5f));
     }
 
     public void ShowAlert(string msg)
@@ -99,21 +98,14 @@ public class FishingMinigame : MonoBehaviour
         //Debug.Log(msg);
     }
     //helping manage ui activation
-    public void ShowUI()
-    {
-        if (minigamePanel != null)
-        {
-            minigamePanel.SetActive(true);
-            ShowAlert(""); // make sure message is cleared
 
-        }
-    }
-
-    public void HideUI()
+    private IEnumerator HideUIDelay(float delay)
     {
-        if (minigamePanel != null)
-        {
-            minigamePanel.SetActive(false);
-        }
+        yield return new WaitForSeconds(delay);
+        minigameAlerts.gameObject.SetActive(false);
+        gameTimer.gameObject.SetActive(false);
+        progressBar.gameObject.SetActive(false);
+        minigamePanel.gameObject.SetActive(false);
     }
+   
 }

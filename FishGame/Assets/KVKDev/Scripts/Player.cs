@@ -22,8 +22,6 @@ public class Player : MonoBehaviour
 
     private bool canMove = true;
 
-    #region Unity Lifecycle
-
     private void Awake()
     {
         if (fishingManager == null) Debug.LogWarning("FishingManager not assigned in Player.");
@@ -36,9 +34,9 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        AnyStateAnimation stand = new AnyStateAnimation("Stand", "Jump");
-        AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump");
-        AnyStateAnimation jump = new AnyStateAnimation("Jump","Walk");
+        AnyStateAnimation stand = new AnyStateAnimation("Stand","Casting","Jump");
+        AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump", "Casting");
+        AnyStateAnimation jump = new AnyStateAnimation("Jump");
         AnyStateAnimation casting = new AnyStateAnimation("Casting");
         AnyStateAnimation castIdle = new AnyStateAnimation("CastIdle", "Reeling");
         AnyStateAnimation reeling = new AnyStateAnimation("Reeling");
@@ -62,22 +60,18 @@ public class Player : MonoBehaviour
         }
     }
 
-    #endregion
-
-    #region Input Setup
-
+   
     private void RegisterInputActions()
     {
         actions.ControlsMap.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
-        //actions.ControlsMap.Move.canceled += ctx => moveInput = Vector2.zero;
+        actions.ControlsMap.Move.canceled += ctx => moveInput = Vector2.zero;
         actions.ControlsMap.MouseMovement.performed += ctx => horizontalMouseInput = ctx.ReadValue<float>();
         actions.ControlsMap.Jump.performed += ctx => Jump();
-        //actions.ControlsMap.Cast.performed += ctx => StartCasting();
-        actions.ControlsMap.Cast.started += ctx => OnCast(ctx);
+        actions.ControlsMap.Cast.performed += ctx => OnCast(ctx);
         // Remove fishing input handling here, FishingManager should handle reeling inputs
     }
 
-    #endregion
+    
 
     #region Movement
 
@@ -125,27 +119,14 @@ public class Player : MonoBehaviour
 
     #endregion
 
-    #region Fishing Delegation
-
-    private void StartCasting()
-    {
-        if (fishingManager == null) return;
-
-        // Disable player movement while fishing
-        canMove = false;
-
-        // Tell FishingManager to start fishing sequence (which will handle fishing animations)
-        fishingManager.StartFishing();
-    }
-
     //when player presses cast forward that input to the fishingmanager script
     private void OnCast(InputAction.CallbackContext ctx)
     {
         fishingManager.OnCast(ctx);
     }   
-        // Optional: expose methods for FishingManager to enable player movement again after fishing
+      
     public void EnableMovement() => canMove = true;
     public void DisableMovement() => canMove = false;
 
-    #endregion
+    
 }

@@ -21,7 +21,7 @@ public class AnyStateAnimator : MonoBehaviour
         Animate();
 
     }
-    
+
 
 
     public void TryPlayAnimation(string animationName)
@@ -65,18 +65,29 @@ public class AnyStateAnimator : MonoBehaviour
         }
     }
 
+    private Dictionary<string, bool> lastAnimationStates = new Dictionary<string, bool>();
+
     private void Animate()
     {
-        foreach (string key in anyStateAnimations.Keys)
+        foreach (var key in anyStateAnimations.Keys)
         {
-            animator.SetBool(key, anyStateAnimations[key].IsPlaying);
+            bool current = anyStateAnimations[key].IsPlaying;
+
+            if (!lastAnimationStates.ContainsKey(key) || lastAnimationStates[key] != current)
+            {
+                animator.SetBool(key, current);
+                lastAnimationStates[key] = current;
+            }
         }
     }
+
 
     public void OnAnimationDone(string animationName)
     {
         anyStateAnimations[animationName].IsPlaying = false;
     }
+    
+    
 
    
 }

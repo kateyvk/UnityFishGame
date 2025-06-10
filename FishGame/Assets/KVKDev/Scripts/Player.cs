@@ -1,203 +1,190 @@
-using NUnit.Framework.Internal;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
     private PlayerActions actions;
-    [SerializeField] private AnyStateAnimator anyStateAnimator;
 
+    [SerializeField] private AnyStateAnimator anyStateAnimator;
     [SerializeField] private CharacterController characterController;
     [SerializeField] private FishingManager fishingManager;
 
-
-
-    //bools to help manage animation logic
+    // Internal state flags
     private bool isCasting = false;
     private bool castFinished = false;
     private bool isReeling = false;
     private bool canMove = true;
-    
 
-    #region INPUT
+    // Input
     private Vector2 moveInput;
     private float horizontalMouseInput;
-    #endregion
 
-   
-    #region MOVEMENT VALUES
-    [SerializeField] private float moveSpeed =2.0F;
-    
-    [SerializeField] private float rotationSpeed = 80.0F;
-    [SerializeField] private float jumpHeight = 0.2F; 
-    private float gravityValue = -9.81F;
-
+    // Movement
+    [Header("Movement Settings")]
+    [SerializeField] private float moveSpeed = 2.0f;
+    [SerializeField] private float rotationSpeed = 80.0f;
+    [SerializeField] private float jumpHeight = 0.2f;
+    private float gravityValue = -9.81f;
     private Vector3 playerVelocity;
+
+    
+
+    #region Unity Lifecycle
+
+    private void Awake()
+    {
+        if (fishingManager == null) Debug.LogWarning("FishingManager not assigned in Player.");
+        if (anyStateAnimator == null) Debug.LogWarning("AnyStateAnimator not assigned in Player.");
+        if (characterController == null) Debug.LogWarning("CharacterController not assigned in Player.");
+
+        actions = new PlayerActions();
+        RegisterInputActions();
+    }
+
+    private void OnEnable() => actions?.Enable();
+    private void OnDisable() => actions?.Disable();
+
+    private void Start()
+    {
+        // Define animation states and their priorities
+        var stand = new AnyStateAnimation("Stand", "Jump", "Casting");
+        var walk = new AnyStateAnimation("Walk", "Jump");
+        var jump = new AnyStateAnimation("Jump");
+        var casting = new AnyStateAnimation("Casting");
+        var castIdle = new AnyStateAnimation("CastIdle", "Reeling");
+        var reeling = new AnyStateAnimation("Reeling");
+
+        anyStateAnimator?.AddAnimation(stand, walk, jump, casting, castIdle, reeling);
+    }
+
+    private void Update()
+    {
+        if (!isCasting)
+        {
+            Move();
+            Rotate();
+        }
+
+        Gravity();
+    }
+
     #endregion
 
-    private void OnEnable()
-    {
-        actions.Enable();
-        
-    }
-    private void OnDisable()
-    {
-        
-        actions.Disable();
-    }
+    #region Input Setup
 
-
-    void Awake()
+    private void RegisterInputActions()
     {
-        actions = new PlayerActions();
-
-        actions.ControlsMap.Jump.performed += cxt => Jump();
-        actions.ControlsMap.Move.performed += cxt => moveInput = cxt.ReadValue<Vector2>();
-        actions.ControlsMap.MouseMovement.performed += cxt => horizontalMouseInput = cxt.ReadValue<float>();
-        actions.ControlsMap.Cast.performed += cxt => StartCasting(); //user should only press the button once
+        actions.ControlsMap.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+        actions.ControlsMap.MouseMovement.performed += ctx => horizontalMouseInput = ctx.ReadValue<float>();
+        actions.ControlsMap.Jump.performed += ctx => Jump();
+        actions.ControlsMap.Cast.performed += ctx => StartCasting();
         actions.ControlsMap.Cast.started += OnCast;
-        actions.ControlsMap.Reel.started += cxt => StartReeling(); //user must hold down for reeling
-        actions.ControlsMap.Reel.canceled += cxt => StopReeling();
-
-        actions.ControlsMap.Cast.started += cxt => fishingManager.StartFishing();
-
+        actions.ControlsMap.Reel.started += ctx => StartReeling();
+        actions.ControlsMap.Reel.canceled += ctx => StopReeling();
     }
 
-    void Start()
-    {
-        AnyStateAnimation stand = new AnyStateAnimation("Stand","Jump","Casting");
-        AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump");
-        AnyStateAnimation jump = new AnyStateAnimation("Jump");
-        AnyStateAnimation casting = new AnyStateAnimation("Casting");
-        AnyStateAnimation castIdle = new AnyStateAnimation("CastIdle","Reeling");
-        AnyStateAnimation reeling = new AnyStateAnimation("Reeling"); 
-        anyStateAnimator.AddAnimation(stand, walk, jump,casting, castIdle, reeling);
-    }
+    #endregion
 
-
-    private void Rotate()
-    {
-        if (!Mouse.current.rightButton.isPressed)
-        {
-            float mouseX = horizontalMouseInput * rotationSpeed * Time.deltaTime;
-            transform.Rotate(Vector3.up * mouseX);
-
-        }
-    }
-
-
-    private void Gravity()
-    {
-        if(characterController.isGrounded && playerVelocity.y <0)
-        {
-            playerVelocity.y =0;
-        }
-        playerVelocity.y += gravityValue * Time.deltaTime;
-        characterController.Move(playerVelocity * Time.deltaTime);
-    }
-
-
-
+    #region Movement
 
     private void Move()
     {
-        if (!canMove || isCasting || isReeling) return; //preventing movement when casting or reeling
 
         Vector3 movement = transform.right * moveInput.x + transform.forward * moveInput.y;
         characterController.Move(movement * moveSpeed * Time.deltaTime);
 
         bool isMoving = moveInput.x != 0 || moveInput.y != 0;
 
-        if (isReeling)
-        {
-            return;
-        }
         if (isMoving)
         {
-            anyStateAnimator.TryPlayAnimation("Walk");
-            castFinished = false;
-        }
-        else
-        {
-            if (castFinished)
-            {
-                anyStateAnimator.TryPlayAnimation("CastIdle");
-            }
-            else
-            {
-                anyStateAnimator.TryPlayAnimation("Stand");
-            }
-        }
-        /*
-        if (isMoving == true)
-        {
-            anyStateAnimator.TryPlayAnimation("Walk");
+            SetAnimation("Walk");
             castFinished = false;
         }
         else
         {
             if (castFinished && !isReeling)
             {
-                anyStateAnimator.TryPlayAnimation("CastIdle");
+                SetAnimation("CastIdle");
             }
-            else
+            else if (!isCasting && !isReeling)
             {
-                anyStateAnimator.TryPlayAnimation("Stand");
+                SetAnimation("Stand");
             }
         }
-        */
+    }
 
+    private void Rotate()
+    {
+        if (!Mouse.current.rightButton.isPressed) return;
+
+        float mouseX = horizontalMouseInput * rotationSpeed * Time.deltaTime;
+        transform.Rotate(Vector3.up * mouseX);
+    }
+
+    private void Gravity()
+    {
+        if (characterController.isGrounded && playerVelocity.y < 0)
+            playerVelocity.y = 0;
+
+        playerVelocity.y += gravityValue * Time.deltaTime;
+        characterController.Move(playerVelocity * Time.deltaTime);
     }
 
     private void Jump()
     {
-        //Any state animator plays the StandingJump animation
-        anyStateAnimator.TryPlayAnimation("Jump");
-        //Applying physics 
-        playerVelocity.y += Mathf.Sqrt(jumpHeight *-3.0f*gravityValue);
-        
+        SetAnimation("Jump");
+        playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
     }
+
+    #endregion
+
+    #region Casting & Reeling
 
     private void StartCasting()
     {
-        if(isCasting|| isReeling) return; //exit if iscasting is already true or currently reeling
-        isCasting = true; //currently running casting animation
+        if (isReeling) return;
+        SetAnimation("Casting");
+        isCasting = true;
         castFinished = false;
-        canMove = false; //lock movement
-        anyStateAnimator.TryPlayAnimation("Casting");
+        canMove = false;
+
+       
     }
+
     public void StopCasting()
     {
         Debug.Log("StopCasting called by animation event");
-        isCasting = false; 
-        castFinished = true;//cast animation just ended
+        SetAnimation("CastIdle");
+        isCasting = false;
+        castFinished = true;
         canMove = true;
-        anyStateAnimator.TryPlayAnimation("CastIdle");
+
+        
     }
 
     private void StartReeling()
     {
-        Debug.Log("start reeling is called");
-        if (!castFinished || isCasting) return; //user can only reel when the cast is finished
+        Debug.Log("StartReeling called");
+
+        if (!castFinished || isCasting) return;
+        
         isReeling = true;
         canMove = false;
-        anyStateAnimator.TryPlayAnimation("Reeling");
+
+        SetAnimation("Reeling");
     }
+
     private void StopReeling()
     {
-        Debug.Log("stop reeling called");
+        Debug.Log("StopReeling called");
+
         isReeling = false;
         canMove = true;
-        
 
-        if (castFinished)
-            anyStateAnimator.TryPlayAnimation("CastIdle");
-        else
-            anyStateAnimator.TryPlayAnimation("Stand");
+        SetAnimation(castFinished ? "CastIdle" : "Stand");
     }
 
-    private void OnCast(InputAction.CallbackContext cxt)
+    private void OnCast(InputAction.CallbackContext ctx)
     {
         if (fishingManager != null)
         {
@@ -209,21 +196,25 @@ public class Player : MonoBehaviour
         }
     }
 
+    #endregion
+
+    
 
     public void DisableMovement() => canMove = false;
     public void EnableMovement() => canMove = true;
-    
-    
-    // Update is called once per frame
-    void Update()
+
+   
+    private string currentAnimation = "";
+
+    private void SetAnimation(string animationName)
     {
-        if (!isCasting)
-        {
-            Move();
-            Rotate();
-        }
-        
-        Gravity();
-        
+        if (animationName == currentAnimation) return;
+
+        currentAnimation = animationName;
+        anyStateAnimator?.TryPlayAnimation(animationName);
     }
+
+
+
+    
 }

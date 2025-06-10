@@ -1,11 +1,12 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MusicManager : MonoBehaviour
 {
     public static MusicManager Instance { get; private set; }
 
     [SerializeField] private AudioSource musicSource;
-
+   
     private void Awake()
     {
         // If there's already an instance, destroy this duplicate

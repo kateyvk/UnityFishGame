@@ -55,7 +55,7 @@ public class FishingManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1f); // wait for cast animation to finish
         animator.TryPlayAnimation("CastIdle");// switch back to idle after the cast
-        player.StopCasting(); // stop the casting
+        
 
         currentState = FishingState.Waiting; //start the waiting for fish to bite state 
         biteCoroutine = StartCoroutine(BiteWait()); //randomize wait time 
@@ -78,6 +78,14 @@ public class FishingManager : MonoBehaviour
     {
         currentState = FishingState.Minigame;
         minigame.StartMinigame(OnMinigameComplete);
+    }
+    //forwarded from player after cast called, then starts the fishing sequence
+    public void OnCast(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+        {
+            StartFishing();
+        }
     }
 
     //

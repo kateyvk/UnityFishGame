@@ -1,8 +1,11 @@
+using System.Data.Common;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainMenuUI : MonoBehaviour
 {
+    [SerializeField] Slider volumeSlider;
     public GameObject mainMenuPanel;
     public GameObject optionsPanel;
     public GameObject aboutPanel;
@@ -46,5 +49,31 @@ public class MainMenuUI : MonoBehaviour
         PlayClickSound();
         Application.Quit();
         Debug.Log("Quit Game");
+    }
+    public void ChangeVolume()
+    {
+        AudioListener.volume = volumeSlider.value;
+        SaveVol();
+    }
+    private void SaveVol()
+    {
+        PlayerPrefs.SetFloat("musicVolume", volumeSlider.value);
+    }
+    private void LoadVol()
+    {
+        volumeSlider.value = PlayerPrefs.GetFloat("musicVolume");
+    }
+    void Start()
+    {
+        if (!PlayerPrefs.HasKey("musicVolume"))
+        {
+            PlayerPrefs.SetFloat("musicVolume", 1);
+            LoadVol();
+        }
+        else
+        {
+            LoadVol();
+        }
+        
     }
 }

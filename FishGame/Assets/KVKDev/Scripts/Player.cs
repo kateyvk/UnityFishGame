@@ -9,17 +9,10 @@ public class Player : MonoBehaviour
     [SerializeField] private CharacterController characterController;
     [SerializeField] private FishingManager fishingManager;
 
-    // Internal state flags
-    private bool isCasting = false;
-    private bool castFinished = false;
-    private bool isReeling = false;
-    private bool canMove = true;
-
-    // Input
+    // Movement
     private Vector2 moveInput;
     private float horizontalMouseInput;
 
-    // Movement
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 2.0f;
     [SerializeField] private float rotationSpeed = 80.0f;
@@ -27,7 +20,7 @@ public class Player : MonoBehaviour
     private float gravityValue = -9.81f;
     private Vector3 playerVelocity;
 
-    
+    private bool canMove = true;
 
     #region Unity Lifecycle
 
@@ -41,31 +34,36 @@ public class Player : MonoBehaviour
         RegisterInputActions();
     }
 
+    private void Start()
+    {
+        AnyStateAnimation stand = new AnyStateAnimation("Stand", "Jump");
+        AnyStateAnimation walk = new AnyStateAnimation("Walk", "Jump");
+        AnyStateAnimation jump = new AnyStateAnimation("Jump");
+        AnyStateAnimation casting = new AnyStateAnimation("Casting");
+        AnyStateAnimation castIdle = new AnyStateAnimation("CastIdle", "Reeling");
+        AnyStateAnimation reeling = new AnyStateAnimation("Reeling");
+
+        anyStateAnimator.AddAnimation(stand, walk, jump, casting, castIdle, reeling);
+    }
+
+        
+    
+
     private void OnEnable() => actions?.Enable();
     private void OnDisable() => actions?.Disable();
 
-    private void Start()
-    {
-        // Define animation states and their priorities
-        var stand = new AnyStateAnimation("Stand", "Jump", "Casting");
-        var walk = new AnyStateAnimation("Walk", "Jump");
-        var jump = new AnyStateAnimation("Jump");
-        var casting = new AnyStateAnimation("Casting");
-        var castIdle = new AnyStateAnimation("CastIdle", "Reeling");
-        var reeling = new AnyStateAnimation("Reeling");
-
-        anyStateAnimator?.AddAnimation(stand, walk, jump, casting, castIdle, reeling);
-    }
-
     private void Update()
     {
-        if (!isCasting)
+        if (canMove)
         {
             Move();
             Rotate();
+            Gravity();
         }
-
-        Gravity();
+        else
+        {
+            Gravity();
+        }
     }
 
     #endregion
@@ -75,12 +73,12 @@ public class Player : MonoBehaviour
     private void RegisterInputActions()
     {
         actions.ControlsMap.Move.performed += ctx => moveInput = ctx.ReadValue<Vector2>();
+        actions.ControlsMap.Move.canceled += ctx => moveInput = Vector2.zero;
         actions.ControlsMap.MouseMovement.performed += ctx => horizontalMouseInput = ctx.ReadValue<float>();
         actions.ControlsMap.Jump.performed += ctx => Jump();
         actions.ControlsMap.Cast.performed += ctx => StartCasting();
-        actions.ControlsMap.Cast.started += OnCast;
-        actions.ControlsMap.Reel.started += ctx => StartReeling();
-        actions.ControlsMap.Reel.canceled += ctx => StopReeling();
+        actions.ControlsMap.Cast.started += ctx => OnCast(ctx);
+        // Remove fishing input handling here, FishingManager should handle reeling inputs
     }
 
     #endregion
@@ -89,7 +87,6 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
-
         Vector3 movement = transform.right * moveInput.x + transform.forward * moveInput.y;
         characterController.Move(movement * moveSpeed * Time.deltaTime);
 
@@ -97,19 +94,11 @@ public class Player : MonoBehaviour
 
         if (isMoving)
         {
-            SetAnimation("Walk");
-            castFinished = false;
+            anyStateAnimator.TryPlayAnimation("Walk");
         }
         else
         {
-            if (castFinished && !isReeling)
-            {
-                SetAnimation("CastIdle");
-            }
-            else if (!isCasting && !isReeling)
-            {
-                SetAnimation("Stand");
-            }
+            anyStateAnimator.TryPlayAnimation("Stand");
         }
     }
 
@@ -132,89 +121,35 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        SetAnimation("Jump");
+        if (!canMove) return; // Prevent jumping during fishing
+
+        anyStateAnimator.TryPlayAnimation("Jump");
         playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
     }
 
     #endregion
 
-    #region Casting & Reeling
+    #region Fishing Delegation
 
     private void StartCasting()
     {
-        if (isReeling) return;
-        SetAnimation("Casting");
-        isCasting = true;
-        castFinished = false;
+        if (fishingManager == null) return;
+
+        // Disable player movement while fishing
         canMove = false;
 
-       
+        // Tell FishingManager to start fishing sequence (which will handle fishing animations)
+        fishingManager.StartFishing();
     }
 
-    public void StopCasting()
-    {
-        Debug.Log("StopCasting called by animation event");
-        SetAnimation("CastIdle");
-        isCasting = false;
-        castFinished = true;
-        canMove = true;
-
-        
-    }
-
-    private void StartReeling()
-    {
-        Debug.Log("StartReeling called");
-
-        if (!castFinished || isCasting) return;
-        
-        isReeling = true;
-        canMove = false;
-
-        SetAnimation("Reeling");
-    }
-
-    private void StopReeling()
-    {
-        Debug.Log("StopReeling called");
-
-        isReeling = false;
-        canMove = true;
-
-        SetAnimation(castFinished ? "CastIdle" : "Stand");
-    }
-
+    //when player presses cast forward that input to the fishingmanager script
     private void OnCast(InputAction.CallbackContext ctx)
     {
-        if (fishingManager != null)
-        {
-            fishingManager.StartFishing();
-        }
-        else
-        {
-            Debug.LogWarning("FishingManager is null when casting was attempted.");
-        }
-    }
+        fishingManager.OnCast(ctx);
+    }   
+        // Optional: expose methods for FishingManager to enable player movement again after fishing
+    public void EnableMovement() => canMove = true;
+    public void DisableMovement() => canMove = false;
 
     #endregion
-
-    
-
-    public void DisableMovement() => canMove = false;
-    public void EnableMovement() => canMove = true;
-
-   
-    private string currentAnimation = "";
-
-    private void SetAnimation(string animationName)
-    {
-        if (animationName == currentAnimation) return;
-
-        currentAnimation = animationName;
-        anyStateAnimator?.TryPlayAnimation(animationName);
-    }
-
-
-
-    
 }

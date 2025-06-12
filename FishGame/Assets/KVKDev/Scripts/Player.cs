@@ -14,9 +14,9 @@ public class Player : MonoBehaviour
     private float horizontalMouseInput;
 
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 2.0f;
-    [SerializeField] private float rotationSpeed = 80.0f;
-    [SerializeField] private float jumpHeight = 0.2f;
+    [SerializeField] public float moveSpeed = 3.0f;
+    [SerializeField] public float rotationSpeed = 75.0f;
+    [SerializeField] public float jumpHeight = 1f;
     private float gravityValue = -9.81f;
     private Vector3 playerVelocity;
 

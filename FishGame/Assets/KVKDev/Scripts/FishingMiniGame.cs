@@ -11,8 +11,8 @@ public class FishingMinigame : MonoBehaviour
 
 
     public float duration = 30f;            // Total time to play the minigame
-    public float decayRate = 30f;          // How fast progress drops per second
-    public float fillPerPress = 8f;       // How much each R button press fills the bar
+    public float decayRate = 30f;          // how fast progress drops per second
+    public float fillPerPress = 8f;       // how much each R button press fills the bar
     public Slider progressBar;             // UI slider to show progress
 
     private float timer = 0f;
@@ -53,13 +53,13 @@ public class FishingMinigame : MonoBehaviour
         float timeLeft = Mathf.Max(0, duration - timer);
         if (gameTimer != null)
         {
-            gameTimer.text = $"Time Left: {timeLeft:F1}s";
+            gameTimer.text = $"Time Left: {timeLeft:F0}s";
         }
         // Detect R key press
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             progress += fillPerPress;
-            ShowAlert($" Progress: {progress}/100 Keep smashing that Button!!!");
+            ShowAlert($" Progress: {progress.ToString("F1")}/100 - Keep smashing that Button!!!");
         }
 
         // Update UI slider

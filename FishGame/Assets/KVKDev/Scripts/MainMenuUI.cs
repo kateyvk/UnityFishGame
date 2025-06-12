@@ -11,6 +11,8 @@ public class MainMenuUI : MonoBehaviour
     public GameObject aboutPanel;
     public AudioSource clickSound;
 
+    
+
     public void PlayClickSound()
     {
         clickSound?.Play();
@@ -55,7 +57,7 @@ public class MainMenuUI : MonoBehaviour
         float volume = volumeSlider.value;
         AudioListener.volume = volume;
 
-        // Also update persistent MusicManager volume if it exists
+        
         if (MusicManager.Instance != null)
         {
             MusicManager.Instance.UpdateVolume(volume);
